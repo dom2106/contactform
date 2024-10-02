@@ -1,52 +1,70 @@
 <html>
 <head>
-	<title>Contact Us</title>
-	<link rel="stylesheet" href="style1.css">
+    <title>Contact Us</title>
+    <link rel="stylesheet" href="style1.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 </head>
 <body>
-	<div class="container">
-	<table>
-	<td><center><img src="img.png"></center></td>
-	<td>
-		<form onsubmit="sendEmail(); receiveResponse(); reset(); return false;">
-			<h3>CONTACT US</h3>
-			<input type="text" id="name" placeholder="Name" required>
-			<input type="email" id="email" placeholder="Email-Id" required>
-			<input type="text" id="phone" placeholder="Phone No." required>
-			<textarea id="message" rows="4" placeholder="Enter Message" required></textarea>
-			<button type="submit">SUBMIT</button>
-		</form>
-	</td>
-	</table>
-	</div>
-	<script src="https://smtpjs.com/v3/smtp.js"></script>
-	<script>
-		function sendEmail()
-		{
-			Email.send({
-			SecureToken: "357287a3-6844-4247-96d3-2f786f81dead",
-			To : document.getElementById("email").value,
-			From : 'dalviruchita0@gmail.com',
-			Subject : "Will reach back to you soon",
-			Body : "<h3>Name: "+ document.getElementById("name").value+
-			"<br>Email: "+ document.getElementById("email").value+
-			"<br>Phone No: "+ document.getElementById("phone").value+
-			"<br>Message: "+ document.getElementById("message").value+"</h3>"
-		}).then(message => alert("Copy of request is sent on your mail"));
-		}
-		function receiveResponse()
-		{
-			Email.send({
-			SecureToken: "357287a3-6844-4247-96d3-2f786f81dead",
-			To : 'dalviruchita0@gmail.com',
-			From : 'dalviruchita0@gmail.com',
-			Subject : "Contact Request:",
-			Body : "<h3>Name: "+ document.getElementById("name").value+
-			"<br>Email: "+ document.getElementById("email").value+
-			"<br>Phone No: "+ document.getElementById("phone").value+
-			"<br>Message: "+ document.getElementById("message").value+"</h3>"
-		}).then(message => alert("Contact Request is sent"));
-		}
-	</script>
+    <div class="container">
+    <table>
+        <td><center><img src="img.png"></center></td>
+        <td>
+            <form onsubmit="submitData(); return false;">
+                <h3>CONTACT US</h3>
+                <input type="text" id="name" placeholder="Name" required>
+                <input type="email" id="email" placeholder="Email-Id" required>
+                <input type="text" id="phone" placeholder="Phone No." required>
+                <textarea id="message" rows="4" placeholder="Enter Message" required></textarea>
+                <button type="submit">SUBMIT</button>
+            </form>
+        </td>
+    </table>
+    </div>
+
+    <script>
+        // Your Firebase configuration (replace with your actual config from Firebase Console)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(app);
+
+        // Function to submit form data to Firebase Firestore
+        function submitData() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const message = document.getElementById('message').value;
+
+            // Add a new document to the "contacts" collection
+            db.collection("contacts").add({
+                name: name,
+                email: email,
+                phone: phone,
+                message: message,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                alert("Contact request has been submitted successfully.");
+                // Reset the form
+                document.getElementById('name').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('phone').value = '';
+                document.getElementById('message').value = '';
+            })
+            .catch((error) => {
+                console.error("Error adding document: ", error);
+                alert("There was an error submitting your request. Please try again.");
+            });
+        }
+    </script>
 </body>
 </html>
